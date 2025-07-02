@@ -69,7 +69,7 @@ const safeTransformLabelValue = <T extends Record<string, any>>(
 };
 
 // Helper function to handle API errors consistently
-const handleApiError = (error: any, context: string): LabelValue[] => {
+export const handleApiError = (error: any, context: string): LabelValue[] => {
   console.error(`Error fetching ${context}:`, error);
   if (error.response) {
     console.error('API Response:', error.response.data);

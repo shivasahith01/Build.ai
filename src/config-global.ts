@@ -10,7 +10,7 @@ export type ConfigValue = {
 // ----------------------------------------------------------------------
 
 export const CONFIG: ConfigValue = {
-  appName: 'Global Reach AI',
+  appName: 'Insight AI',
   appVersion: packageJson.version,
 };
 

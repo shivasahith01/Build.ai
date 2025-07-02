@@ -71,7 +71,7 @@ export function DashboardLayout({ sx, children, header }: DashboardLayoutProps) 
                     // textTransform: 'uppercase', // Keeping uppercase
                   }}
                 >
-                  Global Reach AI
+                  Insight AI
                 </Box>
                 {/* Text "Powered by" styled professionally */}
                 {/* <Box
