@@ -64,10 +64,29 @@ const agingData = [
 ];
 
 const summaryKPIs = [
-  { label: 'Active Accounts', value: '1,247', change: '+4.2%', changeColor: 'success.main' },
-  { label: 'CoGS per Account (Avg)', value: '$189', change: '-2.8%', changeColor: 'success.main' },
-  { label: 'OPEX per Account (Avg)', value: '$78', change: '+1.5%', changeColor: 'error.main' },
+  {
+    label: 'Active Accounts',
+    value: '1,247',
+    change: '+4.2%',
+    changeColor: 'green',
+    isPositive: true,
+  },
+  {
+    label: 'CoGS per Account (Avg)',
+    value: '$189',
+    change: '-2.8%',
+    changeColor: 'green',
+    isPositive: true,
+  },
+  {
+    label: 'OPEX per Account (Avg)',
+    value: '$78',
+    change: '+1.5%',
+    changeColor: 'red',
+    isPositive: false,
+  },
 ];
+
 
 const totalOutstanding = '$500,000';
 const avgDaysToPayment = 28;
@@ -84,7 +103,7 @@ export const BusinessOverviewComponent = () => (
           { title: 'Total OPEX (YTD)', value: '$561K', change: '-3.1%' },
         ].map((item, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>
-            <Box sx={{ backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2, textAlign: 'center' }}>
+            <Box sx={{ backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2, textAlign: 'center',transition: 'box-shadow 0.1s ease-in-out', '&:hover': { boxShadow: 6, }, }}>
               <Typography variant="h5" fontWeight={700}>{item.value}</Typography>
               <Typography variant="body2" color="text.secondary">{item.change} vs last year</Typography>
               <Typography variant="subtitle2" fontWeight={600}>{item.title}</Typography>
@@ -222,16 +241,41 @@ export const BusinessOverviewComponent = () => (
         <Grid item xs={12} md={6}>
           <Grid container spacing={2}>
             {summaryKPIs.map((kpi, index) => (
-              <Grid item xs={12} sm={4} key={index}>
-                <Box sx={{ backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2, textAlign: 'center' }}>
-                  <Typography variant="h5" fontWeight={700}>{kpi.value}</Typography>
-                  <Typography variant="body2" sx={{ color: kpi.changeColor }}>{kpi.change} vs last month</Typography>
-                  <Typography variant="subtitle2">{kpi.label}</Typography>
+              <Grid item xs={12} key={index}  >
+                <Box
+                  sx={{
+                    backgroundColor: '#fff',
+                    borderRadius: 2,
+                    boxShadow: 1,
+                    p: 1.3,
+                    border: '1px solid #eee',
+                    transition: 'box-shadow 0.1s ease-in-out',
+                    '&:hover': { boxShadow: 6, }
+                  }}
+                >
+                  <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                    {kpi.label}
+                  </Typography>
+                  <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
+                    {kpi.value}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    {/* Optional: show up/down icon based on positive/negative */}
+                    {kpi.isPositive ? (
+                      <span style={{ color: kpi.changeColor }}>🔼</span>
+                    ) : (
+                      <span style={{ color: kpi.changeColor }}>🔽</span>
+                    )}
+                    <Typography variant="body2" sx={{ color: kpi.changeColor }}>
+                      {kpi.change} vs last month
+                    </Typography>
+                  </Box>
                 </Box>
               </Grid>
             ))}
           </Grid>
         </Grid>
+
       </Grid>
     </Grid>
 
