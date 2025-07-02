@@ -25,7 +25,6 @@ import { AnalyticsWidgetSummary } from 'src/sections/overview/analytics-widget-s
 import { Box } from '@mui/material';
 import { BusinessOverviewComponent } from '../../../layouts/components/businessOverView';
 import MetricsDashboard from '../../../layouts/components/performanceMetrics';
-
 const AppleHeader = styled(Typography)(({ theme }) => ({
   fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   fontWeight: 600,
