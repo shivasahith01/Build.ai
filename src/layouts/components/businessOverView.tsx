@@ -60,6 +60,7 @@ const agingData = [
   { name: '30-60 days', value: 20, color: '#FBC02D' },
   { name: '60-90 days', value: 10, color: '#FB8C00' },
   { name: '90+ days', value: 5, color: '#E53935' },
+
 ];
 
 const summaryKPIs = [
@@ -98,20 +99,30 @@ export const BusinessOverviewComponent = () => (
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
         <Box sx={{ flex: '2 1 600px', backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}>
           <Typography variant="h6" gutterBottom>Financial Performance Trends</Typography>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={financialData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
-              <Legend />
-              <Line type="monotone" dataKey="Revenue" stroke="#1e88e5" />
-              <Line type="monotone" dataKey="GrossProfit" stroke="#43a047" />
-              <Line type="monotone" dataKey="NetProfit" stroke="#e53935" />
-              <Line type="monotone" dataKey="OPEX" stroke="#fb8c00" />
-              <Line type="monotone" dataKey="CoGS" stroke="#8e24aa" />
-            </LineChart>
-          </ResponsiveContainer>
+          <Box >
+            <ResponsiveContainer width="100%" height={300} >
+              <LineChart
+                  data={financialData}
+                  margin={{ top: 10, right: 30, left: 60, bottom: 10 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis
+                    tickFormatter={(value) =>
+                        value >= 1000000 ? `${value / 1000000}M` : value >= 1000 ? `${value / 1000}K` : value
+                    }
+                />
+                <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                <Legend />
+                <Line type="monotone" dataKey="Revenue" stroke="#1e88e5" />
+                <Line type="monotone" dataKey="GrossProfit" stroke="#43a047" />
+                <Line type="monotone" dataKey="NetProfit" stroke="#e53935" />
+                <Line type="monotone" dataKey="OPEX" stroke="#fb8c00" />
+                <Line type="monotone" dataKey="CoGS" stroke="#8e24aa" />
+              </LineChart>
+            </ResponsiveContainer>
+
+          </Box>
         </Box>
         <Box sx={{ flex: '1 1 300px', backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}>
           <Typography variant="h6" gutterBottom>YTD Performance vs Goals</Typography>
@@ -121,13 +132,13 @@ export const BusinessOverviewComponent = () => (
             { label: 'Customer Retention', value: '94.3% / 95%', percent: 99.3 },
             { label: 'Cost Reduction', value: '8.5% / 12%', percent: 70.8 },
           ].map((goal, i) => (
-            <Box key={i} sx={{ mb: 2 }}>
-              <Typography variant="body2" fontWeight={500}>{goal.label}: {goal.value}</Typography>
-              <Box sx={{ backgroundColor: '#e0e0e0', height: 8, borderRadius: 4, mt: 0.5 }}>
-                <Box sx={{ width: `${goal.percent}%`, height: '100%', backgroundColor: '#1a237e', borderRadius: 4 }} />
+              <Box key={i} sx={{ mb: 2}}>
+                <Typography variant="body2" fontWeight={500}>{goal.label}: {goal.value}</Typography>
+                <Box sx={{ backgroundColor: '#e0e0e0', height: 8, borderRadius: 4, mt: 0.5 }}>
+                  <Box sx={{ width: `${goal.percent}%`, height: '100%', backgroundColor: '#1a237e', borderRadius: 4 }} />
+                </Box>
+                <Typography variant="caption">{goal.percent}% of target</Typography>
               </Box>
-              <Typography variant="caption">{goal.percent}% of target</Typography>
-            </Box>
           ))}
         </Box>
       </Box>
