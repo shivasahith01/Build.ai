@@ -76,6 +76,8 @@ const MetricsDashboard = () => (
               borderRadius: 2,
               p: 2,
               boxShadow: 1,
+              transition: 'box-shadow 0.1s ease-in-out',
+              '&:hover': { boxShadow: 6, }
             }}
           >
             <Typography variant="subtitle2" color="text.secondary">

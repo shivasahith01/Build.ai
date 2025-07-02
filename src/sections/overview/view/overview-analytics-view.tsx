@@ -115,197 +115,217 @@ export function OverviewAnalyticsView() {
   // }
   const [performanceClicked, setPerformanceClicked] = useState(false)
 
-  const [businessclicked, setBusineeClicked] = useState(false);
+  const [businessclicked, setBusineeClicked] = useState(true);
   const handleBusinessClick = () => {
     setBusineeClicked(true);
     setPerformanceClicked(false);
-
-    const container = document.getElementById('layout');
-    if (container) {
-      container.innerHTML = '';
-      const root = ReactDOM.createRoot(container);
-      root.render(<BusinessOverviewComponent />);
-    }
+    //
+    // const container = document.getElementById('layout');
+    // if (container) {
+    //   container.innerHTML = '';
+    //   const root = ReactDOM.createRoot(container);
+    //   root.render(<BusinessOverviewComponent />);
+    // }
   };
 
   const handlePerformanceClick = () => {
     setPerformanceClicked(true);
     setBusineeClicked(false)
-    const container = document.getElementById('layout');
-    if (container) {
-      container.innerHTML = '';
-      const root = ReactDOM.createRoot(container);
-      root.render(<MetricsDashboard />);
-    }
+    // const container = document.getElementById('layout');
+    // if (container) {
+    //   container.innerHTML = '';
+    //   const root = ReactDOM.createRoot(container);
+    //   root.render(<MetricsDashboard />);
+    // }
   };
 
   return (
     <Box sx={{ gap: 10}}>
 
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom:3 }} >
+      <Box
+        sx={{
+          display: 'inline-flex',
+          backgroundColor: '#F9FAFB', // container background
+          borderRadius: 2,
+          p: 1,
+          mb: 3,
+          gap:1
+        }}
+      >
+        {/* Business Overview Button */}
         <Box
           onClick={handleBusinessClick}
           sx={{
-            px: 2,
+            px: 3,
             py: 1,
-            border: '1px solid',
-            borderRadius: 2,
+            borderRadius: 1,
             cursor: 'pointer',
-            backgroundColor: businessclicked ? 'primary.main' : 'grey',
-            color: 'white',
-            '&:hover': {
-              backgroundColor: 'primary.main',
-              color: 'white',
-            },
+            backgroundColor: businessclicked ? '#fff' : 'transparent',
+            color: businessclicked ? 'black' : '#64748b',
+            fontWeight: businessclicked ? 'bold' : 500,
+            boxShadow: businessclicked ? 1 : 'none',
+            transition: 'all 0.2s ease-in-out',
+
           }}
         >
           Business Overview
         </Box>
 
+        {/* Performance Metrics Button */}
         <Box
           onClick={handlePerformanceClick}
           sx={{
-            px: 2,
+            px: 3,
             py: 1,
-            border: '1px solid',
-            // borderColor: 'primary.main',
-            borderRadius: 2,
+            borderRadius: 1,
             cursor: 'pointer',
-            backgroundColor: performanceClicked ? 'primary.main' : 'grey',
-            color: 'white',
-            '&:hover': {
-              backgroundColor: 'primary.main',
-              color: 'white',
-            },
+            backgroundColor: performanceClicked ? '#fff' : 'transparent',
+            color: performanceClicked ? 'black' : '#64748b',
+            fontWeight: performanceClicked ? 'bold' : 500,
+            boxShadow: performanceClicked ? 1 : 'none',
+            transition: 'all 0.2s ease-in-out',
+
           }}
         >
           Performance Metrics
         </Box>
+
+
       </Box>
-<Box  id='layout' >
-      <Grid container spacing={3} sx={{ display: 'flex', flexWrap: 'wrap' }}>
-        <Grid xs={12} sm={6} md={3}>
-          <AnalyticsWidgetSummary
-            title="Total Bill"
-            total={billingHistoryData.length > 0 ? billingHistoryData[billingHistoryData.length - 1].value : 0}
-            subtitle="This Month"
-          />
-        </Grid>
-        <Grid xs={12} sm={6} md={3}>
-          <AnalyticsWidgetSummary
-            title="Active SIMs"
-            total={simTotalHistory.length > 0 ? simTotalHistory[simTotalHistory.length - 1].value : 0}
-            subtitle="Current Count"
-            percent={
-              simTotalHistory.length > 1
-                ? ((simTotalHistory[simTotalHistory.length - 1].value - simTotalHistory[simTotalHistory.length - 2].value) /
-                  simTotalHistory[simTotalHistory.length - 2].value) *
-                  100
-                : 0
-            }
-          />
-        </Grid>
-        <Grid xs={12} sm={6} md={3}>
-          <AnalyticsWidgetSummary
-            title="Total Accounts"
-            total={totalAccountsHistory.length > 0 ? totalAccountsHistory[totalAccountsHistory.length - 1].value : 0}
-            subtitle="Current Count"
-            percent={
-              totalAccountsHistory.length > 1
-                ? ((totalAccountsHistory[totalAccountsHistory.length - 1].value -
-                    totalAccountsHistory[totalAccountsHistory.length - 2].value) /
-                  totalAccountsHistory[totalAccountsHistory.length - 2].value) *
-                  100
-                : 0
-            }
-          />
-        </Grid>
-        <Grid xs={12} sm={6} md={3}>
-          <AnalyticsWidgetSummary
-            title="Monthly CDRs"
-            total={cdrHistoryData.length > 1 ? cdrHistoryData[cdrHistoryData.length - 2].value : 0}
-            subtitle="Last Month"
-            percent={
-              cdrHistoryData.length > 2
-                ? ((cdrHistoryData[cdrHistoryData.length - 2].value - cdrHistoryData[cdrHistoryData.length - 3].value) /
-                  cdrHistoryData[cdrHistoryData.length - 3].value) *
-                  100
-                : 0
-            }
-          />
-        </Grid>
-        <Grid container spacing={3}>
-          <Grid xs={12} md={3} lg={6}>
-            {dataUsageByNetwork.length === 0 ? (
-              <Typography>No data available for Data Usage by Network</Typography>
-            ) : (
-              <DataUsageDonutChart
-                title="Data Usage by Network"
-                subheader="Last Billing Cycle"
-                chart={{ series: dataUsageByNetwork }}
-                sx={{ minHeight: '400px', width: '100%' }}
-              />
-            )}
-          </Grid>
-          <Grid xs={12} md={3} lg={6}>
-            {ratePlanUsageLastMonth.length === 0 ? (
-              <Typography>No data available for Data Usage by Rate Plan</Typography>
-            ) : (
-              <DataUsageDonutChart
-                title="Data Usage by Rate Plan"
-                subheader="Last Billing Cycle"
-                chart={{ series: ratePlanUsageLastMonth }}
-                sx={{ minHeight: '400px', width: '100%' }}
-              />
-            )}
-          </Grid>
-          <Grid xs={12} md={3} lg={6}>
-            {pastSixMonthsAccountsBill.length === 0 ? (
-              <Typography>No data available for Total Bill for All Accounts</Typography>
-            ) : (
-              <BillingForAccounts
-                title="Total Bill for All Accounts"
-                subheader="Past 6 Months"
-                chart={{
-                  categories: pastSixMonthsAccountsBill.map((month) => month.label),
-                  series: { name: 'Billing', data: pastSixMonthsAccountsBill.map((month) => month.value) },
-                }}
-                sx={{ minHeight: '400px', width: '100%' }}
-              />
-            )}
-          </Grid>
-          <Grid xs={12} md={3} lg={6}>
-            {pastSixMonthsAccountsUsage.length === 0 ? (
-              <Typography>No data available for Total Usage for All Accounts</Typography>
-            ) : (
-              <UsageForAccounts
-                title="Total Usage for All Accounts"
-                subheader="Past 6 Months"
-                chart={{
-                  categories: pastSixMonthsAccountsUsage.map((month) => month.label),
-                  series: { name: 'Data Usage', data: pastSixMonthsAccountsUsage.map((month) => month.value) },
-                }}
-                sx={{ minHeight: '400px', width: '100%' }}
-              />
-            )}
-          </Grid>
-          <Grid xs={12} md={3} lg={6}>
-            {topAccountsUsage.series.length === 0 ? (
-              <Typography>No data available for Top Accounts by Usage</Typography>
-            ) : (
-              <UsageForAccounts
-                title="Top Accounts by Usage"
-                subheader="Last Two Months"
-                chart={{
-                  categories: topAccountsUsage.months,
-                  series: topAccountsUsage.series[0],
-                }}
-                sx={{ minHeight: '400px', width: '100%' }}
-              />
-            )}
-          </Grid>
-        </Grid>
-      </Grid>
+
+
+      <Box  id='layout' >
+
+
+    {businessclicked ? <BusinessOverviewComponent /> : <MetricsDashboard />}
+
+
+
+
+
+  {/*       <Grid container spacing={3} sx={{ display: 'flex', flexWrap: 'wrap' }}> */}
+{/*         <Grid xs={12} sm={6} md={3}> */}
+{/*           <AnalyticsWidgetSummary */}
+{/*             title="Total Bill" */}
+{/*             total={billingHistoryData.length > 0 ? billingHistoryData[billingHistoryData.length - 1].value : 0} */}
+{/*             subtitle="This Month" */}
+{/*           /> */}
+{/*         </Grid> */}
+{/*         <Grid xs={12} sm={6} md={3}> */}
+{/*           <AnalyticsWidgetSummary */}
+{/*             title="Active SIMs" */}
+{/*             total={simTotalHistory.length > 0 ? simTotalHistory[simTotalHistory.length - 1].value : 0} */}
+{/*             subtitle="Current Count" */}
+{/*             percent={ */}
+{/*               simTotalHistory.length > 1 */}
+{/*                 ? ((simTotalHistory[simTotalHistory.length - 1].value - simTotalHistory[simTotalHistory.length - 2].value) / */}
+{/*                   simTotalHistory[simTotalHistory.length - 2].value) * */}
+{/*                   100 */}
+{/*                 : 0 */}
+{/*             } */}
+{/*           /> */}
+{/*         </Grid> */}
+{/*         <Grid xs={12} sm={6} md={3}> */}
+{/*           <AnalyticsWidgetSummary */}
+{/*             title="Total Accounts" */}
+{/*             total={totalAccountsHistory.length > 0 ? totalAccountsHistory[totalAccountsHistory.length - 1].value : 0} */}
+{/*             subtitle="Current Count" */}
+{/*             percent={ */}
+{/*               totalAccountsHistory.length > 1 */}
+{/*                 ? ((totalAccountsHistory[totalAccountsHistory.length - 1].value - */}
+{/*                     totalAccountsHistory[totalAccountsHistory.length - 2].value) / */}
+{/*                   totalAccountsHistory[totalAccountsHistory.length - 2].value) * */}
+{/*                   100 */}
+{/*                 : 0 */}
+{/*             } */}
+{/*           /> */}
+{/*         </Grid> */}
+{/*         <Grid xs={12} sm={6} md={3}> */}
+{/*           <AnalyticsWidgetSummary */}
+{/*             title="Monthly CDRs" */}
+{/*             total={cdrHistoryData.length > 1 ? cdrHistoryData[cdrHistoryData.length - 2].value : 0} */}
+{/*             subtitle="Last Month" */}
+{/*             percent={ */}
+{/*               cdrHistoryData.length > 2 */}
+{/*                 ? ((cdrHistoryData[cdrHistoryData.length - 2].value - cdrHistoryData[cdrHistoryData.length - 3].value) / */}
+{/*                   cdrHistoryData[cdrHistoryData.length - 3].value) * */}
+{/*                   100 */}
+{/*                 : 0 */}
+{/*             } */}
+{/*           /> */}
+{/*         </Grid> */}
+{/*         <Grid container spacing={3}> */}
+{/*           <Grid xs={12} md={3} lg={6}> */}
+{/*             {dataUsageByNetwork.length === 0 ? ( */}
+{/*               <Typography>No data available for Data Usage by Network</Typography> */}
+{/*             ) : ( */}
+{/*               <DataUsageDonutChart */}
+{/*                 title="Data Usage by Network" */}
+{/*                 subheader="Last Billing Cycle" */}
+{/*                 chart={{ series: dataUsageByNetwork }} */}
+{/*                 sx={{ minHeight: '400px', width: '100%' }} */}
+{/*               /> */}
+{/*             )} */}
+{/*           </Grid> */}
+{/*           <Grid xs={12} md={3} lg={6}> */}
+{/*             {ratePlanUsageLastMonth.length === 0 ? ( */}
+{/*               <Typography>No data available for Data Usage by Rate Plan</Typography> */}
+{/*             ) : ( */}
+{/*               <DataUsageDonutChart */}
+{/*                 title="Data Usage by Rate Plan" */}
+{/*                 subheader="Last Billing Cycle" */}
+{/*                 chart={{ series: ratePlanUsageLastMonth }} */}
+{/*                 sx={{ minHeight: '400px', width: '100%' }} */}
+{/*               /> */}
+{/*             )} */}
+{/*           </Grid> */}
+{/*           <Grid xs={12} md={3} lg={6}> */}
+{/*             {pastSixMonthsAccountsBill.length === 0 ? ( */}
+{/*               <Typography>No data available for Total Bill for All Accounts</Typography> */}
+{/*             ) : ( */}
+{/*               <BillingForAccounts */}
+{/*                 title="Total Bill for All Accounts" */}
+{/*                 subheader="Past 6 Months" */}
+{/*                 chart={{ */}
+{/*                   categories: pastSixMonthsAccountsBill.map((month) => month.label), */}
+{/*                   series: { name: 'Billing', data: pastSixMonthsAccountsBill.map((month) => month.value) }, */}
+{/*                 }} */}
+{/*                 sx={{ minHeight: '400px', width: '100%' }} */}
+{/*               /> */}
+{/*             )} */}
+{/*           </Grid> */}
+{/*           <Grid xs={12} md={3} lg={6}> */}
+{/*             {pastSixMonthsAccountsUsage.length === 0 ? ( */}
+{/*               <Typography>No data available for Total Usage for All Accounts</Typography> */}
+{/*             ) : ( */}
+{/*               <UsageForAccounts */}
+{/*                 title="Total Usage for All Accounts" */}
+{/*                 subheader="Past 6 Months" */}
+{/*                 chart={{ */}
+{/*                   categories: pastSixMonthsAccountsUsage.map((month) => month.label), */}
+{/*                   series: { name: 'Data Usage', data: pastSixMonthsAccountsUsage.map((month) => month.value) }, */}
+{/*                 }} */}
+{/*                 sx={{ minHeight: '400px', width: '100%' }} */}
+{/*               /> */}
+{/*             )} */}
+{/*           </Grid> */}
+{/*           <Grid xs={12} md={3} lg={6}> */}
+{/*             {topAccountsUsage.series.length === 0 ? ( */}
+{/*               <Typography>No data available for Top Accounts by Usage</Typography> */}
+{/*             ) : ( */}
+{/*               <UsageForAccounts */}
+{/*                 title="Top Accounts by Usage" */}
+{/*                 subheader="Last Two Months" */}
+{/*                 chart={{ */}
+{/*                   categories: topAccountsUsage.months, */}
+{/*                   series: topAccountsUsage.series[0], */}
+{/*                 }} */}
+{/*                 sx={{ minHeight: '400px', width: '100%' }} */}
+{/*               /> */}
+{/*             )} */}
+{/*           </Grid> */}
+{/*         </Grid> */}
+{/*       </Grid> */}
 </Box>
     </Box>
   );
