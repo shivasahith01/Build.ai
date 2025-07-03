@@ -594,6 +594,7 @@ export const BusinessOverviewComponent = () => {
                 <LineChart
                     data={financialData}
                     margin={{ top: 10, right: 30, left: 60, bottom: 10 }}
+                    key={`chart-${financialData.length}`}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
@@ -774,12 +775,18 @@ export const BusinessOverviewComponent = () => {
                       ))}
                     </Pie>
                     <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                      <Legend/>
                   </PieChart>
                 </ResponsiveContainer>
-
-                <Typography sx={{ mt: 1 }}>
+                       <Typography sx={{ mt: 1,display:'flex',justifyContent:'space-between' }}>
+                  <strong>Average Days to Payment</strong>{' '}
+                  <Box component="span" sx={{ fontWeight: 1000,color: '#1a73e8' }}>
+                   30 days
+                  </Box>
+                </Typography>
+                <Typography sx={{ mt: 1,display:'flex',justifyContent:'space-between' }}>
                   <strong>Total Outstanding:</strong>{' '}
-                  <Box component="span" sx={{ fontWeight: 600 }}>
+                  <Box component="span" sx={{ fontWeight: 1000 }}>
                     ${receivableData.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}
                   </Box>
                 </Typography>

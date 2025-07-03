@@ -1,4 +1,4 @@
-// services/performanceService.ts
+// services/performanceService.ts - FIXED VERSION
 
 import axios from 'axios';
 import config from 'src/config-global';
@@ -87,9 +87,9 @@ const handleApiError = (error: any, context: string): PerformanceApiResponse<any
 // ------------------- DATA FETCH FUNCTIONS -------------------
 
 export const fetchPerformanceOverviewMetrics = async (): Promise<PerformanceApiResponse<PerformanceKPIMetrics[]>> => {
-  console.log('Fetching performance overview metrics from:', `${API_BASE_URL}/performance-overview-metrics`);
+  console.log('Fetching performance overview metrics from:', `${API_BASE_URL}/performance/performance-overview-metrics`);
   try {
-    const response = await axios.get<PerformanceApiResponse<PerformanceKPIMetrics[]>>(`${API_BASE_URL}/performance-overview-metrics`);
+    const response = await axios.get<PerformanceApiResponse<PerformanceKPIMetrics[]>>(`${API_BASE_URL}/performance/performance-overview-metrics`);
     console.log('Raw performance overview response:', response.data);
     return response.data;
   } catch (error) {
@@ -98,9 +98,9 @@ export const fetchPerformanceOverviewMetrics = async (): Promise<PerformanceApiR
 };
 
 export const fetchRevenuePerSimTrend = async (): Promise<PerformanceApiResponse<RevenueTrendData[]>> => {
-  console.log('Fetching revenue per SIM trend from:', `${API_BASE_URL}/revenue-per-sim-trend`);
+  console.log('Fetching revenue per SIM trend from:', `${API_BASE_URL}/performance/revenue-per-sim-trend`);
   try {
-    const response = await axios.get<PerformanceApiResponse<RevenueTrendData[]>>(`${API_BASE_URL}/revenue-per-sim-trend`);
+    const response = await axios.get<PerformanceApiResponse<RevenueTrendData[]>>(`${API_BASE_URL}/performance/revenue-per-sim-trend`);
     console.log('Raw revenue trend response:', response.data);
     return response.data;
   } catch (error) {
@@ -109,9 +109,9 @@ export const fetchRevenuePerSimTrend = async (): Promise<PerformanceApiResponse<
 };
 
 export const fetchCustomerProfitabilityBySegment = async (): Promise<PerformanceApiResponse<ProfitabilityData[]>> => {
-  console.log('Fetching customer profitability by segment from:', `${API_BASE_URL}/customer-profitability-by-segment`);
+  console.log('Fetching customer profitability by segment from:', `${API_BASE_URL}/performance/customer-profitability-by-segment`);
   try {
-    const response = await axios.get<PerformanceApiResponse<ProfitabilityData[]>>(`${API_BASE_URL}/customer-profitability-by-segment`);
+    const response = await axios.get<PerformanceApiResponse<ProfitabilityData[]>>(`${API_BASE_URL}/performance/customer-profitability-by-segment`);
     console.log('Raw profitability response:', response.data);
     return response.data;
   } catch (error) {
@@ -120,9 +120,9 @@ export const fetchCustomerProfitabilityBySegment = async (): Promise<Performance
 };
 
 export const fetchDiscountCreditUtilization = async (): Promise<PerformanceApiResponse<DiscountCreditData[]>> => {
-  console.log('Fetching discount credit utilization from:', `${API_BASE_URL}/discount-credit-utilization`);
+  console.log('Fetching discount credit utilization from:', `${API_BASE_URL}/performance/discount-credit-utilization`);
   try {
-    const response = await axios.get<PerformanceApiResponse<DiscountCreditData[]>>(`${API_BASE_URL}/discount-credit-utilization`);
+    const response = await axios.get<PerformanceApiResponse<DiscountCreditData[]>>(`${API_BASE_URL}/performance/discount-credit-utilization`);
     console.log('Raw discount credit response:', response.data);
     return response.data;
   } catch (error) {
@@ -131,9 +131,9 @@ export const fetchDiscountCreditUtilization = async (): Promise<PerformanceApiRe
 };
 
 export const fetchDiscountSensitivityAnalysis = async (): Promise<PerformanceApiResponse<DiscountSensitivityData[]>> => {
-  console.log('Fetching discount sensitivity analysis from:', `${API_BASE_URL}/discount-sensitivity-analysis`);
+  console.log('Fetching discount sensitivity analysis from:', `${API_BASE_URL}/performance/discount-sensitivity-analysis`);
   try {
-    const response = await axios.get<PerformanceApiResponse<DiscountSensitivityData[]>>(`${API_BASE_URL}/discount-sensitivity-analysis`);
+    const response = await axios.get<PerformanceApiResponse<DiscountSensitivityData[]>>(`${API_BASE_URL}/performance/discount-sensitivity-analysis`);
     console.log('Raw discount sensitivity response:', response.data);
     return response.data;
   } catch (error) {
@@ -142,9 +142,9 @@ export const fetchDiscountSensitivityAnalysis = async (): Promise<PerformanceApi
 };
 
 export const fetchRevenueForecastData = async (): Promise<PerformanceApiResponse<RevenueForecastData[]>> => {
-  console.log('Fetching revenue forecast data from:', `${API_BASE_URL}/revenue-forecast-data`);
+  console.log('Fetching revenue forecast data from:', `${API_BASE_URL}/performance/revenue-forecast-data`);
   try {
-    const response = await axios.get<PerformanceApiResponse<RevenueForecastData[]>>(`${API_BASE_URL}/revenue-forecast-data`);
+    const response = await axios.get<PerformanceApiResponse<RevenueForecastData[]>>(`${API_BASE_URL}/performance/revenue-forecast-data`);
     console.log('Raw revenue forecast response:', response.data);
     return response.data;
   } catch (error) {
@@ -152,47 +152,59 @@ export const fetchRevenueForecastData = async (): Promise<PerformanceApiResponse
   }
 };
 
-export const fetchPerformanceTrends = async (): Promise<PerformanceApiResponse<any[]>> => {
-  console.log('Fetching performance trends from:', `${API_BASE_URL}/performance-trends`);
+// Additional endpoints that exist in your backend
+export const fetchAccountPerformanceMetrics = async (): Promise<PerformanceApiResponse<any[]>> => {
+  console.log('Fetching account performance metrics from:', `${API_BASE_URL}/performance/account-performance-metrics`);
   try {
-    const response = await axios.get<PerformanceApiResponse<any[]>>(`${API_BASE_URL}/performance-trends`);
-    console.log('Raw performance trends response:', response.data);
+    const response = await axios.get<PerformanceApiResponse<any[]>>(`${API_BASE_URL}/performance/account-performance-metrics`);
+    console.log('Raw account performance response:', response.data);
     return response.data;
   } catch (error) {
-    return handleApiError(error, 'performance trends');
+    return handleApiError(error, 'account performance metrics');
   }
 };
 
-export const fetchTopPerformingAccounts = async (): Promise<PerformanceApiResponse<any[]>> => {
-  console.log('Fetching top performing accounts from:', `${API_BASE_URL}/top-performing-accounts`);
+export const fetchPaymentChurnCorrelation = async (): Promise<PerformanceApiResponse<any[]>> => {
+  console.log('Fetching payment churn correlation from:', `${API_BASE_URL}/performance/payment-churn-correlation`);
   try {
-    const response = await axios.get<PerformanceApiResponse<any[]>>(`${API_BASE_URL}/top-performing-accounts`);
-    console.log('Raw top performing accounts response:', response.data);
+    const response = await axios.get<PerformanceApiResponse<any[]>>(`${API_BASE_URL}/performance/payment-churn-correlation`);
+    console.log('Raw payment churn correlation response:', response.data);
     return response.data;
   } catch (error) {
-    return handleApiError(error, 'top performing accounts');
+    return handleApiError(error, 'payment churn correlation');
   }
 };
 
-export const fetchChurnRiskAnalysis = async (): Promise<PerformanceApiResponse<any[]>> => {
-  console.log('Fetching churn risk analysis from:', `${API_BASE_URL}/churn-risk-analysis`);
+export const fetchSegmentDistribution = async (): Promise<PerformanceApiResponse<any[]>> => {
+  console.log('Fetching segment distribution from:', `${API_BASE_URL}/performance/segment-distribution`);
   try {
-    const response = await axios.get<PerformanceApiResponse<any[]>>(`${API_BASE_URL}/churn-risk-analysis`);
-    console.log('Raw churn risk analysis response:', response.data);
+    const response = await axios.get<PerformanceApiResponse<any[]>>(`${API_BASE_URL}/performance/segment-distribution`);
+    console.log('Raw segment distribution response:', response.data);
     return response.data;
   } catch (error) {
-    return handleApiError(error, 'churn risk analysis');
+    return handleApiError(error, 'segment distribution');
   }
 };
 
-export const fetchSegmentPerformanceComparison = async (): Promise<PerformanceApiResponse<any[]>> => {
-  console.log('Fetching segment performance comparison from:', `${API_BASE_URL}/segment-performance-comparison`);
+export const fetchMonthlyChurnRiskTrend = async (): Promise<PerformanceApiResponse<any[]>> => {
+  console.log('Fetching monthly churn risk trend from:', `${API_BASE_URL}/performance/monthly-churn-risk-trend`);
   try {
-    const response = await axios.get<PerformanceApiResponse<any[]>>(`${API_BASE_URL}/segment-performance-comparison`);
-    console.log('Raw segment performance response:', response.data);
+    const response = await axios.get<PerformanceApiResponse<any[]>>(`${API_BASE_URL}/performance/monthly-churn-risk-trend`);
+    console.log('Raw monthly churn risk trend response:', response.data);
     return response.data;
   } catch (error) {
-    return handleApiError(error, 'segment performance comparison');
+    return handleApiError(error, 'monthly churn risk trend');
+  }
+};
+
+export const fetchProfitabilityDistribution = async (): Promise<PerformanceApiResponse<any[]>> => {
+  console.log('Fetching profitability distribution from:', `${API_BASE_URL}/performance/profitability-distribution`);
+  try {
+    const response = await axios.get<PerformanceApiResponse<any[]>>(`${API_BASE_URL}/performance/profitability-distribution`);
+    console.log('Raw profitability distribution response:', response.data);
+    return response.data;
+  } catch (error) {
+    return handleApiError(error, 'profitability distribution');
   }
 };
 
@@ -204,8 +216,9 @@ export default {
   fetchDiscountCreditUtilization,
   fetchDiscountSensitivityAnalysis,
   fetchRevenueForecastData,
-  fetchPerformanceTrends,
-  fetchTopPerformingAccounts,
-  fetchChurnRiskAnalysis,
-  fetchSegmentPerformanceComparison
+  fetchAccountPerformanceMetrics,
+  fetchPaymentChurnCorrelation,
+  fetchSegmentDistribution,
+  fetchMonthlyChurnRiskTrend,
+  fetchProfitabilityDistribution
 };

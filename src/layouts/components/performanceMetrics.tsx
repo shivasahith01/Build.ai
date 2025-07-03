@@ -362,7 +362,7 @@ const MetricsDashboard = () => {
               )}
 
               <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={revenueTrendData}>
+                <LineChart data={revenueTrendData} key={`chart-${revenueTrendData.length}`}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -415,144 +415,214 @@ const MetricsDashboard = () => {
       </Grid>
 
       {/* Bottom Cards Row */}
-      <Grid container spacing={2} sx={{ mt: 2 }}>
-        {/* Discount & Credit Utilization */}
-        <Grid item xs={12} md={4}>
-          <Box sx={{ backgroundColor: '#fff', p: 2, borderRadius: 2, boxShadow: 1 }}>
-            <Typography variant="subtitle1" gutterBottom>Discount & Credit Utilization</Typography>
-            
-            {discountCreditError && (
-              <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-                {discountCreditError}
+<Grid container spacing={2} sx={{ mt: 2 }}>
+  {/* Discount & Credit Utilization */}
+  <Grid item xs={12} md={4}>
+    <Box sx={{ backgroundColor: '#fff', p: 3, borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb' }}>
+      <Typography variant="h6" sx={{ fontWeight: 600, color: '#111827', mb: 3 }}>
+        Discount & Credit Utilization
+      </Typography>
+      
+      {discountCreditError && (
+        <Typography variant="body2" color="error" sx={{ mb: 2 }}>
+          {discountCreditError}
+        </Typography>
+      )}
+
+      {discountCreditLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+          <CircularProgress size={24} />
+        </Box>
+      ) : (
+        <Box sx={{ space: 2 }}>
+          {/* Credit Utilization */}
+          <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 500, color: '#374151' }}>
+                Credit Utilization
               </Typography>
-            )}
-
-            <Box sx={{ position: 'relative' }}>
-              {discountCreditLoading && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-                  <CircularProgress size={30} />
-                </Box>
-              )}
-
-              <Typography variant="body2" sx={{ mt: 1 }}>Credit Utilization</Typography>
-              <Box sx={{ backgroundColor: '#e0e0e0', borderRadius: 1, height: 10 }}>
-                <Box sx={{ 
-                  width: `${discountCreditData?.credit_utilization_percent || 0}%`, 
-                  backgroundColor: '#000', 
-                  height: '100%', 
-                  borderRadius: 1 
-                }} />
-              </Box>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="body2" sx={{ fontWeight: 700, color: '#111827' }}>
                 {discountCreditData?.credit_utilization_percent || 0}%
               </Typography>
+            </Box>
+            <Box sx={{ width: '100%', backgroundColor: '#e5e7eb', borderRadius: 1, height: 8 }}>
+              <Box sx={{ 
+                width: `${discountCreditData?.credit_utilization_percent || 0}%`, 
+                backgroundColor: '#000', 
+                height: '100%', 
+                borderRadius: 1,
+                transition: 'width 0.3s ease'
+              }} />
+            </Box>
+          </Box>
 
-              <Typography variant="body2" sx={{ mt: 1 }}>Discount Usage</Typography>
-              <Box sx={{ backgroundColor: '#e0e0e0', borderRadius: 1, height: 10 }}>
-                <Box sx={{ 
-                  width: `${discountCreditData?.discount_usage_percent || 0}%`, 
-                  backgroundColor: '#000', 
-                  height: '100%', 
-                  borderRadius: 1 
-                }} />
-              </Box>
-              <Typography variant="caption" color="text.secondary">
+          {/* Discount Usage */}
+          <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 500, color: '#374151' }}>
+                Discount Usage
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700, color: '#111827' }}>
                 {discountCreditData?.discount_usage_percent || 0}%
               </Typography>
+            </Box>
+            <Box sx={{ width: '100%', backgroundColor: '#e5e7eb', borderRadius: 1, height: 8 }}>
+              <Box sx={{ 
+                width: `${discountCreditData?.discount_usage_percent || 0}%`, 
+                backgroundColor: '#000', 
+                height: '100%', 
+                borderRadius: 1,
+                transition: 'width 0.3s ease'
+              }} />
+            </Box>
+          </Box>
 
-              <Typography variant="h6" sx={{ mt: 2 }}>
-                Avg Discount Rate: {' '}
-                <Box component="span" fontWeight={700} color="primary.main">
-                  {discountCreditData?.avg_discount_rate || 0}%
-                </Box>
+          {/* Avg Discount Rate */}
+          <Box sx={{ pt: 2, borderTop: '1px solid #f3f4f6' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="body2" sx={{ fontWeight: 500, color: '#374151' }}>
+                Avg Discount Rate
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#2563eb' }}>
+                {discountCreditData?.avg_discount_rate || 0}%
               </Typography>
             </Box>
           </Box>
-        </Grid>
+        </Box>
+      )}
+    </Box>
+  </Grid>
 
-        {/* Discount Sensitivity Analysis */}
-        <Grid item xs={12} md={4}>
-          <Box sx={{ backgroundColor: '#fff', p: 2, borderRadius: 2, boxShadow: 1 }}>
-            <Typography variant="subtitle1" gutterBottom>Discount Sensitivity Analysis</Typography>
-            
-            {discountSensitivityError && (
-              <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-                {discountSensitivityError}
-              </Typography>
-            )}
+  {/* Discount Sensitivity Analysis */}
+  <Grid item xs={12} md={4}>
+    <Box sx={{ backgroundColor: '#fff', p: 3, borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb' }}>
+      <Typography variant="h6" sx={{ fontWeight: 600, color: '#111827', mb: 3 }}>
+        Discount Sensitivity Analysis
+      </Typography>
+      
+      {discountSensitivityError && (
+        <Typography variant="body2" color="error" sx={{ mb: 2 }}>
+          {discountSensitivityError}
+        </Typography>
+      )}
 
-            <Box sx={{ position: 'relative' }}>
-              {discountSensitivityLoading && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-                  <CircularProgress size={30} />
-                </Box>
-              )}
+      {discountSensitivityLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+          <CircularProgress size={24} />
+        </Box>
+      ) : (
+        <Box>
+          {/* High Sensitivity */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: '#374151' }}>
+              High Sensitivity
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: '#dc2626' }}>
+              {discountSensitivityData?.high_sensitivity_percent || 0}%
+            </Typography>
+          </Box>
 
-              <Typography variant="body2" sx={{ mt: 1, color: 'red' }}>
-                High Sensitivity - {discountSensitivityData?.high_sensitivity_percent || 0}%
+          {/* Medium Sensitivity */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: '#374151' }}>
+              Medium Sensitivity
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: '#f59e0b' }}>
+              {discountSensitivityData?.medium_sensitivity_percent || 0}%
+            </Typography>
+          </Box>
+
+          {/* Low Sensitivity */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: '#374151' }}>
+              Low Sensitivity
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: '#059669' }}>
+              {discountSensitivityData?.low_sensitivity_percent || 0}%
+            </Typography>
+          </Box>
+
+          {/* Optimal Discount Rate */}
+          <Box sx={{ pt: 2, borderTop: '1px solid #f3f4f6' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="body2" sx={{ fontWeight: 500, color: '#374151' }}>
+                Optimal Discount Rate
               </Typography>
-              <Typography variant="body2" sx={{ mt: 1, color: '#ffa000' }}>
-                Medium Sensitivity - {discountSensitivityData?.medium_sensitivity_percent || 0}%
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1, color: 'green' }}>
-                Low Sensitivity - {discountSensitivityData?.low_sensitivity_percent || 0}%
-              </Typography>
-              <Typography variant="h6" sx={{ mt: 2 }}>
-                Optimal Discount Rate: {' '}
-                <Box component="span" fontWeight={700} color="primary.main">
-                  {discountSensitivityData?.optimal_discount_rate || 0}%
-                </Box>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#2563eb' }}>
+                {discountSensitivityData?.optimal_discount_rate || 0}%
               </Typography>
             </Box>
           </Box>
-        </Grid>
+        </Box>
+      )}
+    </Box>
+  </Grid>
 
-        {/* Revenue Forecast per Account */}
-        <Grid item xs={12} md={4}>
-          <Box sx={{ backgroundColor: '#fff', p: 2, borderRadius: 2, boxShadow: 1 }}>
-            <Typography variant="subtitle1" gutterBottom>Revenue Forecast per Account</Typography>
-            
-            {revenueForecastError && (
-              <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-                {revenueForecastError}
-              </Typography>
-            )}
+  {/* Revenue Forecast per Account */}
+  <Grid item xs={12} md={4}>
+    <Box sx={{ backgroundColor: '#fff', p: 3, borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb' }}>
+      <Typography variant="h6" sx={{ fontWeight: 600, color: '#111827', mb: 3 }}>
+        Revenue Forecast per Account
+      </Typography>
+      
+      {revenueForecastError && (
+        <Typography variant="body2" color="error" sx={{ mb: 2 }}>
+          {revenueForecastError}
+        </Typography>
+      )}
 
-            <Box sx={{ position: 'relative' }}>
-              {revenueForecastLoading && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-                  <CircularProgress size={30} />
-                </Box>
-              )}
+      {revenueForecastLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+          <CircularProgress size={24} />
+        </Box>
+      ) : (
+        <Box>
+          {/* Q3 2025 Forecast */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: '#374151' }}>
+              Q3 2025 Forecast
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: '#2563eb' }}>
+              {revenueForecastData?.q3_forecast_display || 'Loading...'}
+            </Typography>
+          </Box>
 
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                Q3 2025 Forecast: {' '}
-                <Box component="span" fontWeight={700} color="primary.main">
-                  {revenueForecastData?.q3_forecast_display || 'Loading...'}
-                </Box>
+          {/* Q4 2025 Forecast */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: '#374151' }}>
+              Q4 2025 Forecast
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: '#2563eb' }}>
+              {revenueForecastData?.q4_forecast_display || 'Loading...'}
+            </Typography>
+          </Box>
+
+          {/* YoY Growth Forecast */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: '#374151' }}>
+              YoY Growth Forecast
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: '#059669' }}>
+              {revenueForecastData?.yoy_growth_display || 'Loading...'}
+            </Typography>
+          </Box>
+
+          {/* Confidence Level */}
+          <Box sx={{ pt: 2, borderTop: '1px solid #f3f4f6' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="body2" sx={{ fontWeight: 500, color: '#374151' }}>
+                Confidence Level
               </Typography>
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                Q4 2025 Forecast: {' '}
-                <Box component="span" fontWeight={700} color="primary.main">
-                  {revenueForecastData?.q4_forecast_display || 'Loading...'}
-                </Box>
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                YoY Growth Forecast: {' '}
-                <Box component="span" fontWeight={700} color="green">
-                  {revenueForecastData?.yoy_growth_display || 'Loading...'}
-                </Box>
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 2 }}>
-                Confidence Level: {' '}
-                <Box component="span" fontWeight={700} color="green">
-                  {revenueForecastData?.confidence_level_display || 'Loading...'}
-                </Box>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#059669' }}>
+                {revenueForecastData?.confidence_level_display || 'Loading...'}
               </Typography>
             </Box>
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+      )}
+    </Box>
+  </Grid>
+  </Grid>
     </Box>
   );
 };
