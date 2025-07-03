@@ -1,26 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress } from '@mui/material';
-import Grid from '@mui/material/Grid';
 import {
-  LineChart,
+  Bar,
   Line,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   BarChart,
-  Bar
+  LineChart,
+  CartesianGrid,
+  ResponsiveContainer
 } from 'recharts';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+
+import Grid from '@mui/material/Grid';
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import TrendingDownIcon from "@mui/icons-material/TrendingDown";
+import { Box, Typography, CircularProgress } from '@mui/material';
+
 import {
-  fetchPerformanceOverviewMetrics,
   fetchRevenuePerSimTrend,
-  fetchCustomerProfitabilityBySegment,
+  fetchRevenueForecastData,
   fetchDiscountCreditUtilization,
+  fetchPerformanceOverviewMetrics,
   fetchDiscountSensitivityAnalysis,
-  fetchRevenueForecastData
+  fetchCustomerProfitabilityBySegment
 } from '../../services/performanceService';
 
 // TypeScript Interfaces
@@ -309,9 +311,9 @@ const MetricsDashboard = () => {
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
                 {kpi.up ? (
-                  <ArrowUpwardIcon fontSize="small" sx={{ color: kpi.color, mr: 0.5 }} />
+                  <TrendingUpIcon fontSize="small" sx={{ color: kpi.color, mr: 0.5 }} />
                 ) : (
-                  <ArrowDownwardIcon fontSize="small" sx={{ color: kpi.color, mr: 0.5 }} />
+                  <TrendingDownIcon fontSize="small" sx={{ color: kpi.color, mr: 0.5 }} />
                 )}
                 <Typography variant="body2" sx={{ color: kpi.color }}>
                   {kpi.change || 'Loading...'}

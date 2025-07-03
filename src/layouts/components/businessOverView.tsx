@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress } from '@mui/material';
-import Grid from '@mui/material/Grid';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   LineChart,
   Line,
@@ -18,17 +16,25 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import { 
+
+import Grid from '@mui/material/Grid';
+import { green, red } from '@mui/material/colors';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { Box, Typography, CircularProgress, Button, IconButton } from '@mui/material';
+
+import {
   fetchFinancialChartData,
   fetchDashboardOverviewMetrics,
   fetchAccountGrowthChartData,
   fetchSIMTrendsChartData,
   fetchGoalsProgressData,
   fetchAccountsReceivableData,
-  fetchTopAccountsTableData
+  fetchTopAccountsTableData,
 } from '../../services/dashboardService';
 
-// TypeScript Interfaces
+// TypeScript Interfaces (same as before)
 interface FinancialData {
   month: string;
   Revenue: number;
@@ -129,260 +135,461 @@ export const BusinessOverviewComponent = () => {
   const [topAccountsLoading, setTopAccountsLoading] = useState<boolean>(true);
   const [topAccountsError, setTopAccountsError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Load Financial Data
-    const loadFinancialData = async () => {
-      try {
-        setFinancialLoading(true);
-        const result = await fetchFinancialChartData();
-        
-        if (result.error) {
-          setFinancialError(result.message);
-          setFinancialData(result.data || []);
-        } else {
-          setFinancialData(result.data);
+  // Global loading state for refresh button
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+
+  // Load Financial Data
+  const loadFinancialData = useCallback(async (forceRefresh = false) => {
+    try {
+      setFinancialLoading(true);
+      setFinancialError(null);
+      console.log(`🔄 ${forceRefresh ? 'REFRESHING' : 'Loading'} financial data...`);
+
+      const result = await fetchFinancialChartData();
+      console.log('📊 Financial data result:', result);
+
+      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+        setFinancialData(result.data);
+        console.log('✅ Financial data set successfully:', result.data);
+
+        if (result.error && !result.message.includes('fallback')) {
+          setFinancialError(`API Error: ${result.message}`);
+        } else if (result.message.includes('fallback')) {
+          setFinancialError('Using fallback data - API may be unavailable');
         }
-      } catch (err) {
-        console.error('Failed to load financial data:', err);
-        setFinancialError('Failed to load financial data');
+      } else {
+        console.warn('⚠️ No financial data received');
+        setFinancialError('No financial data available');
         setFinancialData([]);
-      } finally {
-        setFinancialLoading(false);
       }
-    };
-
-    // Load KPI Metrics
-    const loadKPIMetrics = async () => {
-      try {
-        setKpiLoading(true);
-        const result = await fetchDashboardOverviewMetrics();
-        
-        if (result.error) {
-          setKpiError(result.message);
-          setKpiMetrics(null);
-        } else {
-          setKpiMetrics(result.data[0] || null);
-        }
-      } catch (err) {
-        console.error('Failed to load KPI metrics:', err);
-        setKpiError('Failed to load KPI metrics');
-        setKpiMetrics(null);
-      } finally {
-        setKpiLoading(false);
-      }
-    };
-
-    // Load Account Growth Data
-    const loadAccountGrowthData = async () => {
-      try {
-        setAccountGrowthLoading(true);
-        const result = await fetchAccountGrowthChartData();
-        
-        if (result.error) {
-          setAccountGrowthError(result.message);
-          setAccountGrowthData(result.data || []);
-        } else {
-          const transformedData = result.data.map((item: any) => ({
-            month: item.month,
-            newAccounts: item.newaccounts || item.newAccounts || 0,
-            lostAccounts: item.lostaccounts || item.lostAccounts || 0,
-            netGrowth: item.netgrowth || item.netGrowth || 0,
-          }));
-          setAccountGrowthData(transformedData);
-        }
-      } catch (err) {
-        console.error('Failed to load account growth data:', err);
-        setAccountGrowthError('Failed to load account growth data');
-        setAccountGrowthData([]);
-      } finally {
-        setAccountGrowthLoading(false);
-      }
-    };
-
-    // Load SIM Trends Data
-    const loadSIMTrendsData = async () => {
-      try {
-        setSimTrendsLoading(true);
-        const result = await fetchSIMTrendsChartData();
-        
-        if (result.error) {
-          setSimTrendsError(result.message);
-          setSimTrendsData(result.data || []);
-        } else {
-          const transformedData = result.data.map((item: any) => ({
-            month: item.month,
-            simOrders: item.orders || 0,
-            usage: item.usage || 0,
-          }));
-          setSimTrendsData(transformedData);
-        }
-      } catch (err) {
-        console.error('Failed to load SIM trends data:', err);
-        setSimTrendsError('Failed to load SIM trends data');
-        setSimTrendsData([]);
-      } finally {
-        setSimTrendsLoading(false);
-      }
-    };
-
-    // Load Goals Progress Data
-    const loadGoalsData = async () => {
-      try {
-        setGoalsLoading(true);
-        const result = await fetchGoalsProgressData();
-        
-        if (result.error) {
-          setGoalsError(result.message);
-          setGoalsData(result.data || []);
-        } else {
-          setGoalsData(result.data);
-        }
-      } catch (err) {
-        console.error('Failed to load goals data:', err);
-        setGoalsError('Failed to load goals data');
-        setGoalsData([]);
-      } finally {
-        setGoalsLoading(false);
-      }
-    };
-
-    // Load Accounts Receivable Data
-    const loadReceivableData = async () => {
-      try {
-        setReceivableLoading(true);
-        const result = await fetchAccountsReceivableData();
-        
-        if (result.error) {
-          setReceivableError(result.message);
-          setReceivableData(result.data || []);
-        } else {
-          const transformedData = result.data.map((item: any, index: number) => ({
-            category: item.category,
-            amount: item.amount || 0,
-            percentage: item.percentage || 0,
-            color: ['#4CAF50', '#FBC02D', '#FB8C00', '#E53935'][index] || '#4CAF50'
-          }));
-          setReceivableData(transformedData);
-        }
-      } catch (err) {
-        console.error('Failed to load receivable data:', err);
-        setReceivableError('Failed to load receivable data');
-        setReceivableData([]);
-      } finally {
-        setReceivableLoading(false);
-      }
-    };
-
-    // Load Top Accounts Data
-    const loadTopAccountsData = async () => {
-      try {
-        setTopAccountsLoading(true);
-        const result = await fetchTopAccountsTableData();
-        
-        if (result.error) {
-          setTopAccountsError(result.message);
-          setTopAccountsData(result.data || []);
-        } else {
-          setTopAccountsData(result.data);
-        }
-      } catch (err) {
-        console.error('Failed to load top accounts data:', err);
-        setTopAccountsError('Failed to load top accounts data');
-        setTopAccountsData([]);
-      } finally {
-        setTopAccountsLoading(false);
-      }
-    };
-
-    // Load all data
-    loadFinancialData();
-    loadKPIMetrics();
-    loadAccountGrowthData();
-    loadSIMTrendsData();
-    loadGoalsData();
-    loadReceivableData();
-    loadTopAccountsData();
+    } catch (err) {
+      console.error('❌ Failed to load financial data:', err);
+      setFinancialError('Failed to load financial data');
+      setFinancialData([]);
+    } finally {
+      setFinancialLoading(false);
+    }
   }, []);
+
+  // Load KPI Metrics
+  const loadKPIMetrics = useCallback(async (forceRefresh = false) => {
+    try {
+      setKpiLoading(true);
+      setKpiError(null);
+      console.log(`🔄 ${forceRefresh ? 'REFRESHING' : 'Loading'} KPI metrics...`);
+
+      const result = await fetchDashboardOverviewMetrics();
+      console.log('📊 KPI metrics result:', result);
+
+      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+        setKpiMetrics(result.data[0]);
+        console.log('✅ KPI metrics set successfully:', result.data[0]);
+
+        if (result.error && !result.message.includes('fallback')) {
+          setKpiError(`API Error: ${result.message}`);
+        } else if (result.message.includes('fallback')) {
+          setKpiError('Using fallback data - API may be unavailable');
+        }
+      } else {
+        console.warn('⚠️ No KPI metrics received');
+        setKpiError('No KPI metrics available');
+        setKpiMetrics(null);
+      }
+    } catch (err) {
+      console.error('❌ Failed to load KPI metrics:', err);
+      setKpiError('Failed to load KPI metrics');
+      setKpiMetrics(null);
+    } finally {
+      setKpiLoading(false);
+    }
+  }, []);
+
+  // Load Account Growth Data
+  const loadAccountGrowthData = useCallback(async (forceRefresh = false) => {
+    try {
+      setAccountGrowthLoading(true);
+      setAccountGrowthError(null);
+      console.log(`🔄 ${forceRefresh ? 'REFRESHING' : 'Loading'} account growth data...`);
+
+      const result = await fetchAccountGrowthChartData();
+      console.log('📊 Account growth result:', result);
+
+      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+        const transformedData = result.data.map((item: any) => ({
+          month: item.month,
+          newAccounts: item.newaccounts || item.newAccounts || item.accounts || 0,
+          lostAccounts: item.lostaccounts || item.lostAccounts || 0,
+          netGrowth: item.netgrowth || item.netGrowth || item.growth || 0,
+        }));
+        setAccountGrowthData(transformedData);
+        console.log('✅ Account growth data set successfully:', transformedData);
+
+        if (result.error && !result.message.includes('fallback')) {
+          setAccountGrowthError(`API Error: ${result.message}`);
+        } else if (result.message.includes('fallback')) {
+          setAccountGrowthError('Using fallback data - API may be unavailable');
+        }
+      } else {
+        console.warn('⚠️ No account growth data received');
+        setAccountGrowthError('No account growth data available');
+        setAccountGrowthData([]);
+      }
+    } catch (err) {
+      console.error('❌ Failed to load account growth data:', err);
+      setAccountGrowthError('Failed to load account growth data');
+      setAccountGrowthData([]);
+    } finally {
+      setAccountGrowthLoading(false);
+    }
+  }, []);
+
+  // Load SIM Trends Data
+  const loadSIMTrendsData = useCallback(async (forceRefresh = false) => {
+    try {
+      setSimTrendsLoading(true);
+      setSimTrendsError(null);
+      console.log(`🔄 ${forceRefresh ? 'REFRESHING' : 'Loading'} SIM trends data...`);
+
+      const result = await fetchSIMTrendsChartData();
+      console.log('📊 SIM trends result:', result);
+
+      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+        const transformedData = result.data.map((item: any) => ({
+          month: item.month,
+          simOrders: item.orders || item.active || 0,
+          usage: item.usage || item.total || 0,
+        }));
+        setSimTrendsData(transformedData);
+        console.log('✅ SIM trends data set successfully:', transformedData);
+
+        if (result.error && !result.message.includes('fallback')) {
+          setSimTrendsError(`API Error: ${result.message}`);
+        } else if (result.message.includes('fallback')) {
+          setSimTrendsError('Using fallback data - API may be unavailable');
+        }
+      } else {
+        console.warn('⚠️ No SIM trends data received');
+        setSimTrendsError('No SIM trends data available');
+        setSimTrendsData([]);
+      }
+    } catch (err) {
+      console.error('❌ Failed to load SIM trends data:', err);
+      setSimTrendsError('Failed to load SIM trends data');
+      setSimTrendsData([]);
+    } finally {
+      setSimTrendsLoading(false);
+    }
+  }, []);
+
+  // Load Goals Progress Data
+  const loadGoalsData = useCallback(async (forceRefresh = false) => {
+    try {
+      setGoalsLoading(true);
+      setGoalsError(null);
+      console.log(`🔄 ${forceRefresh ? 'REFRESHING' : 'Loading'} goals data...`);
+
+      const result = await fetchGoalsProgressData();
+      console.log('📊 Goals data result:', result);
+
+      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+        const transformedData = result.data.map((item: any) => ({
+          label: item.title || item.label || 'Unknown Goal',
+          current: item.current || 0,
+          target: item.target || 100,
+          percentage: item.percentage || 0,
+        }));
+        setGoalsData(transformedData);
+        console.log('✅ Goals data set successfully:', transformedData);
+
+        if (result.error && !result.message.includes('fallback')) {
+          setGoalsError(`API Error: ${result.message}`);
+        } else if (result.message.includes('fallback')) {
+          setGoalsError('Using fallback data - API may be unavailable');
+        }
+      } else {
+        console.warn('⚠️ No goals data received');
+        setGoalsError('No goals data available');
+        setGoalsData([]);
+      }
+    } catch (err) {
+      console.error('❌ Failed to load goals data:', err);
+      setGoalsError('Failed to load goals data');
+      setGoalsData([]);
+    } finally {
+      setGoalsLoading(false);
+    }
+  }, []);
+
+  // Load Accounts Receivable Data
+  const loadReceivableData = useCallback(async (forceRefresh = false) => {
+    try {
+      setReceivableLoading(true);
+      setReceivableError(null);
+      console.log(`🔄 ${forceRefresh ? 'REFRESHING' : 'Loading'} receivable data...`);
+
+      const result = await fetchAccountsReceivableData();
+      console.log('📊 Receivable data result:', result);
+
+      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+        const transformedData = result.data.map((item: any, index: number) => ({
+          category: item.category || `Category ${index + 1}`,
+          amount: item.amount || 0,
+          percentage: item.percentage || 0,
+          color: ['#4CAF50', '#FBC02D', '#FB8C00', '#E53935'][index] || '#4CAF50',
+        }));
+        setReceivableData(transformedData);
+        console.log('✅ Receivable data set successfully:', transformedData);
+
+        if (result.error && !result.message.includes('fallback')) {
+          setReceivableError(`API Error: ${result.message}`);
+        } else if (result.message.includes('fallback')) {
+          setReceivableError('Using fallback data - API may be unavailable');
+        }
+      } else {
+        console.warn('⚠️ No receivable data received');
+        setReceivableError('No receivable data available');
+        setReceivableData([]);
+      }
+    } catch (err) {
+      console.error('❌ Failed to load receivable data:', err);
+      setReceivableError('Failed to load receivable data');
+      setReceivableData([]);
+    } finally {
+      setReceivableLoading(false);
+    }
+  }, []);
+
+  // Load Top Accounts Data
+  const loadTopAccountsData = useCallback(async (forceRefresh = false) => {
+    try {
+      setTopAccountsLoading(true);
+      setTopAccountsError(null);
+      console.log(`🔄 ${forceRefresh ? 'REFRESHING' : 'Loading'} top accounts data...`);
+
+      const result = await fetchTopAccountsTableData();
+      console.log('📊 Top accounts result:', result);
+
+      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+        setTopAccountsData(result.data);
+        console.log('✅ Top accounts data set successfully:', result.data);
+
+        if (result.error && !result.message.includes('fallback')) {
+          setTopAccountsError(`API Error: ${result.message}`);
+        } else if (result.message.includes('fallback')) {
+          setTopAccountsError('Using fallback data - API may be unavailable');
+        }
+      } else {
+        console.warn('⚠️ No top accounts data received');
+        setTopAccountsError('No top accounts data available');
+        setTopAccountsData([]);
+      }
+    } catch (err) {
+      console.error('❌ Failed to load top accounts data:', err);
+      setTopAccountsError('Failed to load top accounts data');
+      setTopAccountsData([]);
+    } finally {
+      setTopAccountsLoading(false);
+    }
+  }, []);
+
+  // Load all data function
+  const loadAllData = useCallback(async (forceRefresh = false) => {
+    console.log(`🚀 ${forceRefresh ? 'REFRESHING ALL DATA' : 'LOADING ALL DATA'}...`);
+
+    if (forceRefresh) {
+      setIsRefreshing(true);
+    }
+
+    try {
+      // Load all data concurrently
+      await Promise.all([
+        loadFinancialData(forceRefresh),
+        loadKPIMetrics(forceRefresh),
+        loadAccountGrowthData(forceRefresh),
+        loadSIMTrendsData(forceRefresh),
+        loadGoalsData(forceRefresh),
+        loadReceivableData(forceRefresh),
+        loadTopAccountsData(forceRefresh),
+      ]);
+
+      if (forceRefresh) {
+        setLastRefresh(new Date());
+        console.log('🎉 All data refreshed successfully!');
+      } else {
+        console.log('🎉 All data loaded successfully!');
+      }
+    } catch (error) {
+      console.error('❌ Error loading dashboard data:', error);
+    } finally {
+      if (forceRefresh) {
+        setIsRefreshing(false);
+      }
+    }
+  }, [
+    loadFinancialData,
+    loadKPIMetrics,
+    loadAccountGrowthData,
+    loadSIMTrendsData,
+    loadGoalsData,
+    loadReceivableData,
+    loadTopAccountsData,
+  ]);
+
+  // Handle refresh button click
+  const handleRefresh = useCallback(() => {
+    console.log('🔄 Manual refresh triggered');
+    loadAllData(true);
+  }, [loadAllData]);
+
+  // Initial load on component mount
+  useEffect(() => {
+    console.log('🎬 Component mounted, loading initial data...');
+    loadAllData(false);
+  }, [loadAllData]);
 
   // Helper function to get KPI card values
   const getKPICardValue = (index: number) => {
     if (!kpiMetrics) return { value: 'Loading...', change: 'Loading...' };
-    
+
     const configs = [
-      { value: kpiMetrics.ytd_gross_profit_display, change: `${kpiMetrics.gross_profit_change > 0 ? '+' : ''}${kpiMetrics.gross_profit_change}%` },
-      { value: kpiMetrics.ytd_net_profit_display, change: `${kpiMetrics.net_profit_change > 0 ? '+' : ''}${kpiMetrics.net_profit_change}%` },
-      { value: kpiMetrics.ytd_revenue_display, change: `${kpiMetrics.revenue_change > 0 ? '+' : ''}${kpiMetrics.revenue_change}%` },
-      { value: kpiMetrics.ytd_opex_display, change: `${kpiMetrics.opex_change > 0 ? '+' : ''}${kpiMetrics.opex_change}%` },
+      {
+        value: kpiMetrics.ytd_gross_profit_display,
+        change: `${kpiMetrics.gross_profit_change > 0 ? '+' : ''}${kpiMetrics.gross_profit_change}%`,
+      },
+      {
+        value: kpiMetrics.ytd_net_profit_display,
+        change: `${kpiMetrics.net_profit_change > 0 ? '+' : ''}${kpiMetrics.net_profit_change}%`,
+      },
+      {
+        value: kpiMetrics.ytd_revenue_display,
+        change: `${kpiMetrics.revenue_change > 0 ? '+' : ''}${kpiMetrics.revenue_change}%`,
+      },
+      {
+        value: kpiMetrics.ytd_opex_display,
+        change: `${kpiMetrics.opex_change > 0 ? '+' : ''}${kpiMetrics.opex_change}%`,
+      },
     ];
-    
+
     return configs[index] || { value: 'N/A', change: 'N/A' };
   };
 
   return (
-    <Grid container spacing={3} sx={{ padding: 3, backgroundColor: '#f5f5f5' }}>
-      {/* KPI Summary Cards */}
-      <Grid item xs={12}>
-        <Grid container spacing={3}>
-          {[
-            { title: 'Gross Profit (YTD)' },
-            { title: 'Net Profit (YTD)' },
-            { title: 'Revenue (YTD)' },
-            { title: 'Total OPEX (YTD)' },
-          ].map((item, index) => {
-            const kpiData = getKPICardValue(index);
-            return (
-              <Grid item xs={12} sm={6} md={3} key={index}>
-                <Box sx={{ 
-                  backgroundColor: '#fff', 
-                  borderRadius: 2, 
-                  boxShadow: 1, 
-                  p: 2, 
-                  textAlign: 'center',
-                  transition: 'box-shadow 0.1s ease-in-out', 
-                  '&:hover': { boxShadow: 6 },
-                  position: 'relative'
-                }}>
-                  {kpiLoading && (
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                      <CircularProgress size={20} />
-                    </Box>
-                  )}
-                  <Typography variant="h5" fontWeight={700}>{kpiData.value}</Typography>
-                  <Typography variant="body2" color="text.secondary">{kpiData.change} vs last month</Typography>
-                  <Typography variant="subtitle2" fontWeight={600}>{item.title}</Typography>
-                </Box>
-              </Grid>
-            );
-          })}
-        </Grid>
-      </Grid>
-
-      {/* Financial Trends & Goals */}
-      <Grid item xs={12}>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-          {/* Financial Performance Chart */}
-          <Box sx={{ flex: '2 1 600px', backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}>
-            <Typography variant="h6" gutterBottom>Financial Performance Trends</Typography>
-            
-            {financialError && (
-              <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-                {financialError} - Showing available data
+      <Grid container spacing={3} sx={{ padding: 3, backgroundColor: '#f5f5f5' }}>
+        {/* Header with Refresh Button */}
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h4" fontWeight={700}>
+              Business Overview Dashboard
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                Last updated: {lastRefresh.toLocaleTimeString()}
               </Typography>
-            )}
-            
-            <Box sx={{ position: 'relative' }}>
-              {financialLoading && (
-                <Box sx={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  zIndex: 1
-                }}>
-                  <CircularProgress />
-                </Box>
+              <Button
+                  variant="contained"
+                  startIcon={<RefreshIcon />}
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                  sx={{
+                    backgroundColor: '#1976d2',
+                    '&:hover': { backgroundColor: '#1565c0' },
+                    '&:disabled': { backgroundColor: '#ccc' }
+                  }}
+              >
+                {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+              </Button>
+            </Box>
+          </Box>
+        </Grid>
+
+        {/* KPI Summary Cards */}
+        <Grid item xs={12}>
+          <Grid container spacing={3}>
+            {[
+              { title: 'Gross Profit (YTD)' },
+              { title: 'Net Profit (YTD)' },
+              { title: 'Revenue (YTD)' },
+              { title: 'Total OPEX (YTD)' },
+            ].map((item, index) => {
+              const kpiData = getKPICardValue(index);
+              return (
+                  <Grid item xs={12} sm={6} md={3} key={index}>
+                    <Box
+                        sx={{
+                          backgroundColor: '#fff',
+                          borderRadius: 2,
+                          boxShadow: 1,
+                          p: 2,
+                          textAlign: 'center',
+                          transition: 'box-shadow 0.1s ease-in-out',
+                          '&:hover': { boxShadow: 6 },
+                          position: 'relative',
+                        }}
+                    >
+                      {kpiLoading && (
+                          <Box
+                              sx={{
+                                position: 'absolute',
+                                top: 8,
+                                right: 8,
+                              }}
+                          >
+                            <CircularProgress size={16} />
+                          </Box>
+                      )}
+                      <Typography variant="subtitle2" fontWeight={600}>
+                        {item.title}
+                      </Typography>
+                      <Typography variant="h5" fontWeight={700}>
+                        {kpiData.value}
+                      </Typography>
+                      <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            color: kpiData.change.includes('+') ? green[600] : red[600],
+                          }}
+                      >
+                        {kpiData.change.includes('+') ? (
+                            <TrendingUpIcon fontSize="small" />
+                        ) : (
+                            <TrendingDownIcon fontSize="small" />
+                        )}
+                        <Typography variant="body2" sx={{ ml: 0.5 }}>
+                          {kpiData.change} vs last year
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+              );
+            })}
+          </Grid>
+        </Grid>
+
+        {/* Financial Trends & Goals */}
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            {/* Financial Performance Chart */}
+            <Box
+                sx={{ flex: '2 1 600px', backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  Financial Performance Trends
+                </Typography>
+                {financialLoading && (
+                    <CircularProgress size={20} />
+                )}
+              </Box>
+
+              {financialError && (
+                  <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+                    {financialError}
+                  </Typography>
               )}
-              
+
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart
                     data={financialData}
@@ -392,7 +599,11 @@ export const BusinessOverviewComponent = () => {
                   <XAxis dataKey="month" />
                   <YAxis
                       tickFormatter={(value) =>
-                          value >= 1000000 ? `${(value / 1000000).toFixed(1)}M` : value >= 1000 ? `${(value / 1000).toFixed(0)}K` : value
+                          value >= 1000000
+                              ? `${(value / 1000000).toFixed(1)}M`
+                              : value >= 1000
+                                  ? `${(value / 1000).toFixed(0)}K`
+                                  : value
                       }
                   />
                   <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
@@ -405,71 +616,67 @@ export const BusinessOverviewComponent = () => {
                 </LineChart>
               </ResponsiveContainer>
             </Box>
-          </Box>
-          
-          {/* YTD Performance vs Goals */}
-          <Box sx={{ flex: '1 1 300px', backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}>
-            <Typography variant="h6" gutterBottom>YTD Performance vs Goals</Typography>
-            
-            {goalsError && (
-              <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-                {goalsError}
-              </Typography>
-            )}
 
-            <Box sx={{ position: 'relative' }}>
-              {goalsLoading && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-                  <CircularProgress size={30} />
-                </Box>
+            {/* YTD Performance vs Goals */}
+            <Box
+                sx={{ flex: '1 1 300px', backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  YTD Performance vs Goals
+                </Typography>
+                {goalsLoading && (
+                    <CircularProgress size={20} />
+                )}
+              </Box>
+
+              {goalsError && (
+                  <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+                    {goalsError}
+                  </Typography>
               )}
 
               {goalsData.map((goal, i) => (
-                <Box key={i} sx={{ mb: 2}}>
-                  <Typography variant="body2" fontWeight={500}>
-                    {goal.label}: {goal.current}/{goal.target}
-                  </Typography>
-                  <Box sx={{ backgroundColor: '#e0e0e0', height: 8, borderRadius: 4, mt: 0.5 }}>
-                    <Box sx={{ 
-                      width: `${Math.min(goal.percentage, 100)}%`, 
-                      height: '100%', 
-                      backgroundColor: '#1a237e', 
-                      borderRadius: 4 
-                    }} />
+                  <Box key={i} sx={{ mb: 2 }}>
+                    <Typography variant="body2" fontWeight={500}>
+                      {goal.label}: {goal.current}/{goal.target}
+                    </Typography>
+                    <Box sx={{ backgroundColor: '#e0e0e0', height: 8, borderRadius: 4, mt: 0.5 }}>
+                      <Box
+                          sx={{
+                            width: `${Math.min(goal.percentage, 100)}%`,
+                            height: '100%',
+                            backgroundColor: '#1a237e',
+                            borderRadius: 4,
+                          }}
+                      />
+                    </Box>
+                    <Typography variant="caption">{goal.percentage}% of target</Typography>
                   </Box>
-                  <Typography variant="caption">{goal.percentage}% of target</Typography>
-                </Box>
               ))}
             </Box>
           </Box>
-        </Box>
-      </Grid>
+        </Grid>
 
-      {/* Account Growth & SIM Orders */}
-      <Grid item xs={12}>
-        <Grid container spacing={3}>
-          {/* Account Growth Chart */}
-          <Grid item xs={12} md={6}>
-            <Box sx={{ backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}>
-              <Typography variant="h6" gutterBottom>Account Growth/Decline</Typography>
-              
-              {accountGrowthError && (
-                <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-                  {accountGrowthError}
-                </Typography>
-              )}
+        {/* Account Growth & SIM Orders */}
+        <Grid item xs={12}>
+          <Grid container spacing={3}>
+            {/* Account Growth Chart */}
+            <Grid item xs={12} md={6}>
+              <Box sx={{ backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Account Growth/Decline
+                  </Typography>
+                  {accountGrowthLoading && (
+                      <CircularProgress size={20} />
+                  )}
+                </Box>
 
-              <Box sx={{ position: 'relative' }}>
-                {accountGrowthLoading && (
-                  <Box sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    zIndex: 1
-                  }}>
-                    <CircularProgress />
-                  </Box>
+                {accountGrowthError && (
+                    <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+                      {accountGrowthError}
+                    </Typography>
                 )}
 
                 <ResponsiveContainer width="100%" height={300}>
@@ -485,31 +692,24 @@ export const BusinessOverviewComponent = () => {
                   </BarChart>
                 </ResponsiveContainer>
               </Box>
-            </Box>
-          </Grid>
+            </Grid>
 
-          {/* SIM Order & Usage Trends */}
-          <Grid item xs={12} md={6}>
-            <Box sx={{ backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}>
-              <Typography variant="h6" gutterBottom>SIM Order & Usage Trends</Typography>
-              
-              {simTrendsError && (
-                <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-                  {simTrendsError}
-                </Typography>
-              )}
+            {/* SIM Order & Usage Trends */}
+            <Grid item xs={12} md={6}>
+              <Box sx={{ backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    SIM Order & Usage Trends
+                  </Typography>
+                  {simTrendsLoading && (
+                      <CircularProgress size={20} />
+                  )}
+                </Box>
 
-              <Box sx={{ position: 'relative' }}>
-                {simTrendsLoading && (
-                  <Box sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    zIndex: 1
-                  }}>
-                    <CircularProgress />
-                  </Box>
+                {simTrendsError && (
+                    <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+                      {simTrendsError}
+                    </Typography>
                 )}
 
                 <ResponsiveContainer width="100%" height={300}>
@@ -524,182 +724,212 @@ export const BusinessOverviewComponent = () => {
                     <YAxis />
                     <CartesianGrid strokeDasharray="3 3" />
                     <Tooltip />
-                    <Area type="monotone" dataKey="simOrders" stroke="#8884d8" fillOpacity={1} fill="url(#colorSim)" />
+                    <Area
+                        type="monotone"
+                        dataKey="simOrders"
+                        stroke="#8884d8"
+                        fillOpacity={1}
+                        fill="url(#colorSim)"
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </Box>
-            </Box>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
 
-      {/* Accounts Receivable + Summary KPIs */}
-      <Grid item xs={12}>
-        <Grid container spacing={3}>
-          {/* Accounts Receivable Pie Chart */}
-          <Grid item xs={12} md={6}>
-            <Box sx={{ backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}>
-              <Typography variant="h6" gutterBottom>Accounts Receivable Aging</Typography>
-              
-              {receivableError && (
-                <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-                  {receivableError}
-                </Typography>
-              )}
+        {/* Accounts Receivable + Summary KPIs */}
+        <Grid item xs={12}>
+          <Grid container spacing={3}>
+            {/* Accounts Receivable Pie Chart */}
+            <Grid item xs={12} md={6}>
+              <Box sx={{ backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Accounts Receivable Aging
+                  </Typography>
+                  {receivableLoading && (
+                      <CircularProgress size={20} />
+                  )}
+                </Box>
 
-              <Box sx={{ position: 'relative' }}>
-                {receivableLoading && (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 250 }}>
-                    <CircularProgress />
-                  </Box>
+                {receivableError && (
+                    <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+                      {receivableError}
+                    </Typography>
                 )}
 
                 <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
-                      data={receivableData}
-                      dataKey="amount"
-                      nameKey="category"
-                      outerRadius={80}
-                      label={({ percentage }) => `${percentage.toFixed(0)}%`}
+                        data={receivableData}
+                        dataKey="amount"
+                        nameKey="category"
+                        outerRadius={80}
+                        label={({ percentage }) => `${percentage.toFixed(0)}%`}
+                        labelLine={false}
                     >
                       {receivableData.map((entry, index) => (
-                        <Cell key={index} fill={entry.color} />
+                          <Cell key={index} fill={entry.color} />
                       ))}
                     </Pie>
                     <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
                   </PieChart>
                 </ResponsiveContainer>
-              </Box>
 
-              <Typography sx={{ mt: 1 }}>
-                <strong>Total Outstanding:</strong>{' '}
-                <Box component="span" sx={{ fontWeight: 600 }}>
-                  ${receivableData.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}
-                </Box>
-              </Typography>
-            </Box>
-          </Grid>
-
-          {/* Summary KPIs */}
-          <Grid item xs={12} md={6}>
-            <Grid container spacing={2}>
-              {[
-                { 
-                  label: 'Active Accounts', 
-                  getValue: () => kpiMetrics?.active_accounts_display || 'Loading...',
-                  getChange: () => kpiMetrics ? `${kpiMetrics.active_accounts_change > 0 ? '+' : ''}${kpiMetrics.active_accounts_change}%` : 'Loading...',
-                  isPositive: () => kpiMetrics ? kpiMetrics.active_accounts_change >= 0 : true
-                },
-                { 
-                  label: 'CoGS per Account (Avg)', 
-                  getValue: () => kpiMetrics?.avg_cogs_display || 'Loading...',
-                  getChange: () => kpiMetrics ? `${kpiMetrics.cogs_change > 0 ? '+' : ''}${kpiMetrics.cogs_change}%` : 'Loading...',
-                  isPositive: () => kpiMetrics ? kpiMetrics.cogs_change <= 0 : true
-                },
-                { 
-                  label: 'OPEX per Account (Avg)', 
-                  getValue: () => kpiMetrics?.avg_opex_display || 'Loading...',
-                  getChange: () => kpiMetrics ? `${kpiMetrics.opex_per_account_change > 0 ? '+' : ''}${kpiMetrics.opex_per_account_change}%` : 'Loading...',
-                  isPositive: () => kpiMetrics ? kpiMetrics.opex_per_account_change <= 0 : true
-                },
-              ].map((kpi, index) => (
-                <Grid item xs={12} key={index}>
-                  <Box
-                    sx={{
-                      backgroundColor: '#fff',
-                      borderRadius: 2,
-                      boxShadow: 1,
-                      p: 1.3,
-                      border: '1px solid #eee',
-                      transition: 'box-shadow 0.1s ease-in-out',
-                      '&:hover': { boxShadow: 6 },
-                      position: 'relative'
-                    }}
-                  >
-                    {kpiLoading && (
-                      <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                        <CircularProgress size={20} />
-                      </Box>
-                    )}
-                    <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                      {kpi.label}
-                    </Typography>
-                    <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
-                      {kpi.getValue()}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      {kpi.isPositive() ? (
-                        <span style={{ color: 'green' }}>🔼</span>
-                      ) : (
-                        <span style={{ color: 'red' }}>🔽</span>
-                      )}
-                      <Typography variant="body2" sx={{ color: kpi.isPositive() ? 'green' : 'red' }}>
-                        {kpi.getChange()} vs last month
-                      </Typography>
-                    </Box>
+                <Typography sx={{ mt: 1 }}>
+                  <strong>Total Outstanding:</strong>{' '}
+                  <Box component="span" sx={{ fontWeight: 600 }}>
+                    ${receivableData.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}
                   </Box>
-                </Grid>
-              ))}
+                </Typography>
+              </Box>
+            </Grid>
+
+            {/* Summary KPIs */}
+            <Grid item xs={12} md={6}>
+              <Grid container spacing={2}>
+                {[
+                  {
+                    label: 'Active Accounts',
+                    getValue: () => kpiMetrics?.active_accounts_display || 'Loading...',
+                    getChange: () =>
+                        kpiMetrics
+                            ? `${kpiMetrics.active_accounts_change > 0 ? '+' : ''}${kpiMetrics.active_accounts_change}%`
+                            : 'Loading...',
+                    isPositive: () => (kpiMetrics ? kpiMetrics.active_accounts_change >= 0 : true),
+                  },
+                  {
+                    label: 'CoGS per Account (Avg)',
+                    getValue: () => kpiMetrics?.avg_cogs_display || 'Loading...',
+                    getChange: () =>
+                        kpiMetrics
+                            ? `${kpiMetrics.cogs_change > 0 ? '+' : ''}${kpiMetrics.cogs_change}%`
+                            : 'Loading...',
+                    isPositive: () => (kpiMetrics ? kpiMetrics.cogs_change <= 0 : true),
+                  },
+                  {
+                    label: 'OPEX per Account (Avg)',
+                    getValue: () => kpiMetrics?.avg_opex_display || 'Loading...',
+                    getChange: () =>
+                        kpiMetrics
+                            ? `${kpiMetrics.opex_per_account_change > 0 ? '+' : ''}${kpiMetrics.opex_per_account_change}%`
+                            : 'Loading...',
+                    isPositive: () => (kpiMetrics ? kpiMetrics.opex_per_account_change <= 0 : true),
+                  },
+                ].map((kpi, index) => (
+                    <Grid item xs={12} key={index}>
+                      <Box
+                          sx={{
+                            backgroundColor: '#fff',
+                            borderRadius: 2,
+                            boxShadow: 1,
+                            p: 1.3,
+                            border: '1px solid #eee',
+                            transition: 'box-shadow 0.1s ease-in-out',
+                            '&:hover': { boxShadow: 6 },
+                            position: 'relative',
+                          }}
+                      >
+                        {kpiLoading && (
+                            <Box
+                                sx={{
+                                  position: 'absolute',
+                                  top: 8,
+                                  right: 8,
+                                }}
+                            >
+                              <CircularProgress size={16} />
+                            </Box>
+                        )}
+                        <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                          {kpi.label}
+                        </Typography>
+                        <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
+                          {kpi.getValue()}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: kpi.getChange().includes('+') ? green[600] : red[600] }}>
+                          {kpi.getChange().includes('+') ? (
+                              <TrendingUpIcon fontSize="small" />
+                          ) : (
+                              <TrendingDownIcon fontSize="small" />
+                          )}
+                          <Typography variant="body2">
+                            {kpi.getChange()} vs last month
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                ))}
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
-      </Grid>
 
-      {/* Top Accounts by Segment */}
-      <Grid item xs={12}>
-        <Box sx={{ backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}>
-          <Typography variant="h6" gutterBottom>Top Accounts by Segment</Typography>
-          
-          {topAccountsError && (
-            <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-              {topAccountsError}
-            </Typography>
-          )}
+        {/* Top Accounts by Segment */}
+        <Grid item xs={12}>
+          <Box sx={{ backgroundColor: '#fff', borderRadius: 2, boxShadow: 1, p: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Top Accounts by Segment
+              </Typography>
+              {topAccountsLoading && (
+                  <CircularProgress size={20} />
+              )}
+            </Box>
 
-          <Box sx={{ position: 'relative' }}>
-            {topAccountsLoading && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-                <CircularProgress />
-              </Box>
+            {topAccountsError && (
+                <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+                  {topAccountsError}
+                </Typography>
             )}
 
             <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
               <tr>
-                {['Account Name', 'Segment', 'Revenue', 'SIMs', 'Usage (GB)', 'Avg Rev/SIM'].map((header, i) => (
-                  <th key={i} style={{ textAlign: 'left', padding: '10px', fontWeight: 600 }}>{header}</th>
-                ))}
+                {['Account Name', 'Segment', 'Revenue', 'SIMs', 'Usage (GB)', 'Avg Rev/SIM'].map(
+                    (header, i) => (
+                        <th key={i} style={{ textAlign: 'left', padding: '10px', fontWeight: 600 }}>
+                          {header}
+                        </th>
+                    )
+                )}
               </tr>
               </thead>
               <tbody>
               {topAccountsData.map((row, index) => (
-                <tr key={index} style={{ borderTop: '1px solid #eee' }}>
-                  <td style={{ padding: '12px' }}>{row.account_name}</td>
-                  <td style={{ padding: '12px' }}>
-                    <Box sx={{
-                      display: 'inline-block',
-                      px: 1.2, py: 0.4,
-                      backgroundColor: row.segment === 'Enterprise' ? '#e3f2fd' : 
-                                     row.segment === 'SMB' ? '#e8f5e9' : '#ede7f6',
-                      borderRadius: '999px',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                    }}>
-                      {row.segment}
-                    </Box>
-                  </td>
-                  <td style={{ padding: '12px' }}>${row.total_revenue.toLocaleString()}</td>
-                  <td style={{ padding: '12px' }}>{row.total_sims.toLocaleString()}</td>
-                  <td style={{ padding: '12px' }}>{row.total_usage_gb.toFixed(1)}</td>
-                  <td style={{ padding: '12px' }}>${row.avg_revenue_per_sim.toFixed(2)}</td>
-                </tr>
+                  <tr key={index} style={{ borderTop: '1px solid #eee' }}>
+                    <td style={{ padding: '12px' }}>{row.account_name}</td>
+                    <td style={{ padding: '12px' }}>
+                      <Box
+                          sx={{
+                            display: 'inline-block',
+                            px: 1.2,
+                            py: 0.4,
+                            backgroundColor:
+                                row.segment === 'Enterprise'
+                                    ? '#e3f2fd'
+                                    : row.segment === 'SMB'
+                                        ? '#e8f5e9'
+                                        : '#ede7f6',
+                            borderRadius: '999px',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                          }}
+                      >
+                        {row.segment}
+                      </Box>
+                    </td>
+                    <td style={{ padding: '12px' }}>${row.total_revenue.toLocaleString()}</td>
+                    <td style={{ padding: '12px' }}>{row.total_sims.toLocaleString()}</td>
+                    <td style={{ padding: '12px' }}>{row.total_usage_gb.toFixed(1)}</td>
+                    <td style={{ padding: '12px' }}>${row.avg_revenue_per_sim.toFixed(2)}</td>
+                  </tr>
               ))}
               </tbody>
             </Box>
           </Box>
-        </Box>
+        </Grid>
       </Grid>
-    </Grid>
   );
 };
