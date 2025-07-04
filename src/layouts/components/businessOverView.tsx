@@ -475,33 +475,33 @@ export const BusinessOverviewComponent = () => {
   };
 
   return (
-      <Grid container spacing={3} sx={{ padding: 3, backgroundColor: '#f5f5f5' }}>
+      <Grid container spacing={3} sx={{ padding: 0, backgroundColor: '#f5f5f5' }}>
         {/* Header with Refresh Button */}
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h4" fontWeight={700}>
-              Business Overview Dashboard
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                Last updated: {lastRefresh.toLocaleTimeString()}
-              </Typography>
-              <Button
-                  variant="contained"
-                  startIcon={<RefreshIcon />}
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  sx={{
-                    backgroundColor: '#1976d2',
-                    '&:hover': { backgroundColor: '#1565c0' },
-                    '&:disabled': { backgroundColor: '#ccc' }
-                  }}
-              >
-                {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
-              </Button>
-            </Box>
-          </Box>
-        </Grid>
+        {/* <Grid item xs={12}> */}
+        {/*   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}> */}
+        {/*     <Typography variant="h4" fontWeight={700}> */}
+        {/*       Business Overview Dashboard */}
+        {/*     </Typography> */}
+        {/*     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}> */}
+        {/*       <Typography variant="body2" color="text.secondary"> */}
+        {/*         Last updated: {lastRefresh.toLocaleTimeString()} */}
+        {/*       </Typography> */}
+        {/*       <Button */}
+        {/*           variant="contained" */}
+        {/*           startIcon={<RefreshIcon />} */}
+        {/*           onClick={handleRefresh} */}
+        {/*           disabled={isRefreshing} */}
+        {/*           sx={{ */}
+        {/*             backgroundColor: '#1976d2', */}
+        {/*             '&:hover': { backgroundColor: '#1565c0' }, */}
+        {/*             '&:disabled': { backgroundColor: '#ccc' } */}
+        {/*           }} */}
+        {/*       > */}
+        {/*         {isRefreshing ? 'Refreshing...' : 'Refresh Data'} */}
+        {/*       </Button> */}
+        {/*     </Box> */}
+        {/*   </Box> */}
+        {/* </Grid> */}
 
         {/* KPI Summary Cards */}
         <Grid item xs={12}>

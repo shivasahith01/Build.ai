@@ -281,7 +281,7 @@ const MetricsDashboard = () => {
   const kpiData = getKPICardData();
 
   return (
-    <Box sx={{ p: 3, backgroundColor: '#f9fafb' }}>
+    <Box sx={{ p: 0, backgroundColor: '#f5f5f5' }}>
       {/* KPI Cards */}
       <Grid container spacing={2}>
         {kpiData.map((kpi, idx) => (

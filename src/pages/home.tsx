@@ -10,7 +10,7 @@ import { OverviewAnalyticsView } from 'src/sections/overview/view'; // Adjust pa
 const AppleContainer = styled(Box)(({ theme }) => ({
   backgroundColor: '#F5F5F7', // Light gray background
   minHeight: '100vh',
-  padding: theme.spacing(4),
+  padding: theme.spacing(2),
 }));
 
 // Styled Typography for headers

@@ -140,12 +140,12 @@ export function OverviewAnalyticsView() {
   };
 
   return (
-    <Box sx={{ gap: 10}}>
+    <Box sx={{p:0}}>
 
       <Box
         sx={{
           display: 'inline-flex',
-          backgroundColor: '#F9FAFB', // container background
+          backgroundColor: '#f9fafb', // container background
           borderRadius: 2,
           p: 1,
           mb: 3,
