@@ -54,7 +54,9 @@ const getLogoUrl = (companyName: string): string => {
     DigiTalk: 'digitalk.com',
     TalkMobile: 'talkmobile.co.uk',
     Amazon: 'amazon.co.uk',
-    Starbucks: 'starbucks.co.uk'
+    Starbucks: 'starbucks.co.uk',
+    Google:'Google.com',
+    Spotify: 'spotify.com',
   };
 
   const domain = domainMap[companyName];
@@ -155,6 +157,8 @@ export function AnalyticsAccountsBySims({ title, subheader, list, sx, ...other }
         }}
       >
         <Box display="grid" gap={2} gridTemplateColumns="repeat(2, 1fr)">
+
+
           {list.map((site) => {
             const details = allAccountDetails[site.label] || {
               total_sims: 'Loading...',
@@ -215,7 +219,7 @@ export function AnalyticsAccountsBySims({ title, subheader, list, sx, ...other }
                     },
                   })}
                 >
-                  <img className="logo" src={getLogoUrl(site.value)} alt={site.value} />
+                  <img className="logo" src={getLogoUrl(site.label)} alt={site.label} />
                   <Typography variant="h6" sx={{ mt: 1 }}>
                     {fShortenNumber(site.total)}
                   </Typography>

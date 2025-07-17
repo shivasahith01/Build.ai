@@ -22,6 +22,7 @@ const useFetchData = (
   errorMessage: string
 ) => {
   useEffect(() => {
+    console.log("hola");
     const fetchData = async () => {
       try {
         const data = await fetchFunction();

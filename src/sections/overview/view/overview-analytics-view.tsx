@@ -106,42 +106,26 @@ export function OverviewAnalyticsView() {
   useFetchData(fetchRatePlanUsage, setRatePlanUsage, 'Failed to fetch past months rate plan usage:');
   useFetchData(fetchTopAccountsByUsage, setTopAccountsUsage, 'Failed to fetch top accounts usage data:', true);
 
-  // const handleBusiness = () => {
-  //   console.log("heloo");
-  //   const container = document.getElementById('layout');
-  //   if (container) {
-  //     container.innerHTML = '';
-  //   }
-  // }
+
   const [performanceClicked, setPerformanceClicked] = useState(false)
 
   const [businessclicked, setBusineeClicked] = useState(true);
   const handleBusinessClick = () => {
     setBusineeClicked(true);
     setPerformanceClicked(false);
-    //
-    // const container = document.getElementById('layout');
-    // if (container) {
-    //   container.innerHTML = '';
-    //   const root = ReactDOM.createRoot(container);
-    //   root.render(<BusinessOverviewComponent />);
-    // }
+
   };
 
   const handlePerformanceClick = () => {
     setPerformanceClicked(true);
     setBusineeClicked(false)
-    // const container = document.getElementById('layout');
-    // if (container) {
-    //   container.innerHTML = '';
-    //   const root = ReactDOM.createRoot(container);
-    //   root.render(<MetricsDashboard />);
-    // }
+
   };
 
   return (
     <Box sx={{p:0}}>
-
+<Box sx={{
+          display: 'flex',justifyContent: 'space-between'}}>
       <Box
         sx={{
           display: 'inline-flex',
@@ -190,18 +174,30 @@ export function OverviewAnalyticsView() {
           Performance Metrics
         </Box>
 
+        </Box>
+    <Box
+        sx={{
+            px: 3,
+            py: 1,
+            mt:1,
+            borderRadius: 1,
+            cursor: 'pointer',
+            backgroundColor: '#fff',
+            color: 'black',
+            fontWeight: 'bold',
+            boxShadow: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '40px', // Optional: fix height to control vertical space
+        }}
+    >
+        Upload csv
+    </Box>
 
       </Box>
-
-
       <Box  id='layout' >
-
-
     {businessclicked ? <BusinessOverviewComponent /> : <MetricsDashboard />}
-
-
-
-
 
   {/*       <Grid container spacing={3} sx={{ display: 'flex', flexWrap: 'wrap' }}> */}
 {/*         <Grid xs={12} sm={6} md={3}> */}

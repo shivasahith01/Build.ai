@@ -167,7 +167,7 @@ export const fetchBillingHistory = async (): Promise<LabelValue[]> => {
     const transformedData = safeTransformLabelValue(
       response.data,
       'month',
-      'total_bill',
+      'total_bill_last_month',
       (month) => {
         try {
           return format(new Date(month), 'MMM yyyy');
@@ -281,7 +281,7 @@ export const fetchTopAccountsByBill = async (): Promise<LabelValue[]> => {
   try {
     const response = await axios.get(`${API_BASE_URL}/top-accounts-by-bill`);
     console.log('Raw response:', response.data);
-    const data = safeTransformLabelValue(response.data, 'account_name', 'total_bill', undefined, 'fetchTopAccountsByBill');
+    const data = safeTransformLabelValue(response.data, 'account_name', 'total_bill_last_month', undefined, 'fetchTopAccountsByBill');
     console.log('Top Accounts by Bill:', data);
     if (data.length === 0) {
       console.warn('No data returned for fetchTopAccountsByBill');
@@ -404,7 +404,7 @@ export const fetchAccountsBillLastSixMonths = async (): Promise<LabelValue[]> =>
     const transformedData = safeTransformLabelValue(
       response.data,
       'billing_cycle',
-      'total_bill',
+      'total_bill_last_month',
       (cycle: string) => {
         try {
           return format(new Date(cycle), 'MMM yyyy');

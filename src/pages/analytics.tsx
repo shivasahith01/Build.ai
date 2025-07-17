@@ -24,6 +24,7 @@ const useFetchData = (
   errorMessage: string
 ) => {
   useEffect(() => {
+    // console.log("helloooo");
     const fetchData = async () => {
       try {
         const data = await fetchFunction();
@@ -43,22 +44,29 @@ interface TopAccountData {
 
 export default function Page() {
   const [topAccountsBill, setTopAccountsBill] = useState<{ label: string; value: number }[]>([]);
-  const [topAccountsSims, setTopAccountsSims] = useState<
-    { label: string; value: string; total: number }[]
-  >([]);
+
+  const [topAccountsSims, setTopAccountsSims] = useState<{ label: string; value: string; total: number }[]>([]);
+
   const [topAccountsData, setTopAccountsData] = useState<TopAccountData[]>([]);
   const [months, setMonths] = useState<string[]>([]); // State for months
 
   useFetchData(fetchTopAccountsByBill, setTopAccountsBill, 'Failed to fetch top accounts bill data:');
-  useFetchData(fetchTopAccountsByUsage, setTopAccountsSims, 'Failed to fetch top accounts sims data:');
+  // useFetchData(fetchTopAccountsByUsage, setTopAccountsSims, 'Failed to fetch top accounts sims data:');
   useEffect(() => {
-  const getData = async () => {
-    const usageData = await fetchTopAccountsByUsage(); // ✅ this returns { series, months }
-    setTopAccountsData(usageData.series);
-    setMonths(usageData.months);
-  };
-  getData();
-}, []);
+    const fetchUsage = async () => {
+      const usageData = await fetchTopAccountsByUsage();
+      setTopAccountsData(usageData.series);
+
+      const simData = usageData.series.map((item) => ({
+        label: item.name,
+        value: item.data[0].toString(), // Assuming you want current month usage as string
+        total: item.data[0]
+      }));
+      setTopAccountsSims(simData);
+      setMonths(usageData.months);
+    };
+    fetchUsage();
+  }, []);
 
   return (
     <>
